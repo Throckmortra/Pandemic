@@ -38,11 +38,16 @@ public class ParametersFragment extends Fragment {
 
     }
 
+//    @OnClick(R.id.btn_heatmap)
+//    public void segueToHeatActivity(){
+//        Log.d("ayyy", "lmao");
+//        Intent intent = new Intent(getActivity(), HeatMapActivity.class);
+//        getActivity().startActivity(intent);
+//    }
+
     @OnClick(R.id.btn_heatmap)
     public void segueToHeatActivity(){
-        Log.d("ayyy", "lmao");
-        Intent intent = new Intent(getActivity(), HeatMapActivity.class);
-        getActivity().startActivity(intent);
+        Log.d("ayy","lmao");
     }
 
     @Override
