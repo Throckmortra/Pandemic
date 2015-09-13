@@ -194,8 +194,10 @@ public class HeatMapActivity extends FragmentActivity {
 
         for (Merchant m : mMerchants) {
             counter++;
-            if (counter < 1500) {
-                continue;
+            if(mSelectedRadius.equals("10000")) {
+                if (counter < 1500) {
+                    continue;
+                }
             }
             
             if (m == null) {
