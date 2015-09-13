@@ -9,6 +9,9 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <string name="release_api_key">AIzaSyCy0G7xVmQUk3RkchZXXIG2EWeZuc2vopU</string>
+
     <string name="aaron_debug_key">AIzaSyB1_izFI4XIT5TFsxC5P6EDrNeOLmZo4JM</string>
     <string name="gerard_debug_key">AIzaSyAF_N95XQsFlFvIAyxFp4bLkfCVBLMwNLk</string>
+
+    <string name="title_activity_splash">SplashActivity</string>
 </resources>
