@@ -42,7 +42,12 @@ public class HeatMapActivity extends FragmentActivity {
     private List<MerchantWeight> mMerchantWeight;
     private NessieClient nessieClient;
     private ProgressDialog mProgressDialog;
+    private String mLat;
+    private String mLng;
+    private String mSelectedRadius;
+
     private FloatingActionButton fab;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +60,17 @@ public class HeatMapActivity extends FragmentActivity {
         mMerchants = new ArrayList<>();
         mMerchantWeight = new ArrayList<>();
         nessieClient = NessieClient.getInstance();
+        Bundle args = getIntent().getExtras();
+        if(args.getString("latitude") != null){
+            mLat = args.getString("latitude");
+        }
+        if(args.getString("longitude") != null){
+            mLng = args.getString("longitude");
+        }
+        if(args.getString("radius") != null){
+            mSelectedRadius = args.getString("radius");
+        }
+
         getLocations();
         fab = (FloatingActionButton) findViewById(R.id.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {
@@ -128,8 +144,7 @@ public class HeatMapActivity extends FragmentActivity {
     private void getLocations() {
         final NessieClient nessieClient = NessieClient.getInstance();
         nessieClient.setAPIKey("d566c0e9c969eb4c02760ef8ecbcabf0");
-
-        nessieClient.getMerchants("37", "-77", "10000", new NessieResultsListener() {
+        nessieClient.getMerchants(mLat, mLng, mSelectedRadius, new NessieResultsListener() {
             @Override
             public void onSuccess(Object result, NessieException e) {
                 if (e == null) {
@@ -224,10 +239,10 @@ public class HeatMapActivity extends FragmentActivity {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        //mMap.addMarker(new MarkerOptions().position(new LatLng(39, -98)).title("Marker"));
+        mMap.addMarker(new MarkerOptions().position(new LatLng(37, -77)).title("Ramhacks"));
 
         CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(new LatLng(39, -98)).zoom(4).build();
+                .target(new LatLng(37, -77)).zoom(5).build();
         mMap.animateCamera(CameraUpdateFactory
                 .newCameraPosition(cameraPosition));
 

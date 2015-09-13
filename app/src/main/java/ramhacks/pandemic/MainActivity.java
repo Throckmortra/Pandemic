@@ -52,8 +52,9 @@ public class MainActivity extends AppCompatActivity implements
     private FusedLocationProviderApi fusedLocationProviderApi;
     private Context mContext;
     private boolean mFirstLocation;
-    private double mLat;
-    private double mLng;
+    private String mLat;
+    private String mLng;
+    private String[] radiusInt;
 
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
@@ -83,6 +84,11 @@ public class MainActivity extends AppCompatActivity implements
     @OnClick(R.id.btn_heatmap)
     public void segueToHeatActivity(){
         Intent intent = new Intent(this, HeatMapActivity.class);
+        Bundle args = new Bundle();
+        args.putString("radius",mSelectedRadius);
+        args.putString("latitude", mLat);
+        args.putString("longitude", mLng);
+        intent.putExtras(args);
         this.startActivity(intent);
     }
 
@@ -181,11 +187,18 @@ public class MainActivity extends AppCompatActivity implements
 
     private void setSpinner(){
         radiusNums = new String[5];
-        radiusNums[0] = "10 miles";
-        radiusNums[1] = "25 miles";
-        radiusNums[2] = "100 miles";
-        radiusNums[3] = "500 miles";
-        radiusNums[4] = "1000 miles";
+        radiusNums[0] = "50 miles";
+        radiusNums[1] = "100 miles";
+        radiusNums[2] = "500 miles";
+        radiusNums[3] = "1000 miles";
+        radiusNums[4] = "10000 miles";
+
+        radiusInt = new String[5];
+        radiusInt[0] = "50";
+        radiusInt[1] = "100";
+        radiusInt[2] = "500";
+        radiusInt[3] = "1000";
+        radiusInt[4] = "10000";
 
 
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this,
@@ -216,7 +229,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        mSelectedRadius = radiusNums[i];
+        mSelectedRadius = radiusInt[i];
     }
 
     @Override
@@ -247,12 +260,12 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onLocationChanged(Location location) {
         if(location.getLongitude() != 0.0 && location.getLatitude() != 0.0) {
-            LatLng latLng = new LatLng(location.getLongitude(), location.getLatitude());
+            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
             Log.d("Test callback", "" + latLng.latitude + "  " + latLng.longitude);
             if(!mFirstLocation) {
                 mLocationBtn.setText("" + latLng.latitude + "  " + latLng.longitude);
-                mLat = latLng.latitude;
-                mLng = latLng.longitude;
+                mLat = String.valueOf(latLng.latitude);
+                mLng = String.valueOf(latLng.longitude);
                 mFirstLocation = true;
             }
             try{
