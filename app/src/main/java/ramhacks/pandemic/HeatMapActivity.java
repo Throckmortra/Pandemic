@@ -1,11 +1,14 @@
 package ramhacks.pandemic;
 
+import android.app.ProgressDialog;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlay;
@@ -35,12 +38,14 @@ public class HeatMapActivity extends FragmentActivity {
     private List<Merchant> mMerchants;
     private List<MerchantWeight> mMerchantWeight;
     private NessieClient nessieClient;
+    private ProgressDialog mProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_heat_map);
         setUpMapIfNeeded();
+        showProgressDialog();
         mLocations = new ArrayList<>();
         mPurchases = new ArrayList<>();
         mMerchants = new ArrayList<>();
@@ -89,13 +94,15 @@ public class HeatMapActivity extends FragmentActivity {
                 .build();
         // Add a tile overlay to the map, using the heat map tile provider.
         mOverlay = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
+
+        dismissProgressDialog();
     }
 
     private void getLocations() {
         final NessieClient nessieClient = NessieClient.getInstance();
-        nessieClient.setAPIKey("3a942e124e29f5d830e92f88808e096b");
+        nessieClient.setAPIKey("d566c0e9c969eb4c02760ef8ecbcabf0");
 
-        nessieClient.getMerchants("37", "-77", "1000", new NessieResultsListener() {
+        nessieClient.getMerchants("37", "-77", "10000", new NessieResultsListener() {
             @Override
             public void onSuccess(Object result, NessieException e) {
                 if (e == null) {
@@ -108,6 +115,7 @@ public class HeatMapActivity extends FragmentActivity {
                     mMerchants = (ArrayList<Merchant>) result;
 
                     getPurchases();
+
                 } else {
                     //There was an error. Handle it here
                     Log.e("Error", e.toString());
@@ -118,7 +126,7 @@ public class HeatMapActivity extends FragmentActivity {
     }
 
     private void getPurchases() {
-        nessieClient.getPurchases("55e94a6cf8d8770528e6169b", new NessieResultsListener() {
+        nessieClient.getPurchases("55e94a6cf8d8770528e6170c", new NessieResultsListener() {
             @Override
             public void onSuccess(Object result, NessieException e) {
                 if (e == null) {
@@ -189,6 +197,26 @@ public class HeatMapActivity extends FragmentActivity {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+        //mMap.addMarker(new MarkerOptions().position(new LatLng(39, -98)).title("Marker"));
+
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(new LatLng(39, -98)).zoom(4).build();
+        mMap.animateCamera(CameraUpdateFactory
+                .newCameraPosition(cameraPosition));
+
+    }
+
+    public void dismissProgressDialog() {
+        if (null != mProgressDialog && mProgressDialog.isShowing()) {
+            mProgressDialog.dismiss();
+        }
+    }
+
+    public void showProgressDialog() {
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setMessage("Loading data...");
+        mProgressDialog.setIndeterminate(true);
+        mProgressDialog.setCancelable(false);
+        mProgressDialog.show();
     }
 }
