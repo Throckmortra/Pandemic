@@ -72,6 +72,7 @@ public class MainActivity extends AppCompatActivity implements
         mContext = this;
         setSpinner();
         mSpinner.setOnItemSelectedListener(this);
+        mSelectedRadius = "10000";
     }
 
     @Override
@@ -291,5 +292,14 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        mLocationBtn.setText("Press to Get Location");
+        mLat = null;
+        mLng = null;
     }
 }

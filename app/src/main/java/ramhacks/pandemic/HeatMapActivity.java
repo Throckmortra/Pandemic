@@ -2,6 +2,7 @@ package ramhacks.pandemic;
 
 import android.app.ProgressDialog;
 import android.graphics.Color;
+import android.os.Environment;
 import android.support.v4.app.FragmentActivity;
 import android.support.design.widget.FloatingActionButton;
 import android.os.Bundle;
@@ -25,8 +26,11 @@ import com.reimaginebanking.api.java.models.Geocode;
 import com.reimaginebanking.api.java.models.Merchant;
 import com.reimaginebanking.api.java.models.Purchase;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 import ramhacks.pandemic.Models.MerchantWeight;
 
@@ -55,23 +59,35 @@ public class HeatMapActivity extends FragmentActivity {
         setContentView(R.layout.activity_heat_map);
         setUpMapIfNeeded();
         showProgressDialog();
+        boolean latRdy = false,
+                lngRdy = false,
+                radRdy = false;
         mLocations = new ArrayList<>();
         mPurchases = new ArrayList<>();
         mMerchants = new ArrayList<>();
         mMerchantWeight = new ArrayList<>();
         nessieClient = NessieClient.getInstance();
         Bundle args = getIntent().getExtras();
-        if(args.getString("latitude") != null){
+        if(args.getString("latitude") != null) {
             mLat = args.getString("latitude");
+            latRdy = true;
         }
-        if(args.getString("longitude") != null){
+        if(args.getString("longitude") != null) {
             mLng = args.getString("longitude");
+            lngRdy = true;
         }
-        if(args.getString("radius") != null){
+        if(args.getString("radius") != null) {
             mSelectedRadius = args.getString("radius");
+            radRdy = true;
         }
 
-        getLocations();
+        if (latRdy && lngRdy && radRdy) {
+            Log.d("WE ARE RUNNING", "QUERY");
+            getLocations();
+        } else {
+            setUpMapFromFile();
+        }
+
         fab = (FloatingActionButton) findViewById(R.id.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -231,6 +247,7 @@ public class HeatMapActivity extends FragmentActivity {
             mLocations.add(new WeightedLatLng(new LatLng(lat, lng), weight));
         }
 
+        dismissProgressDialog();
         createHeatMap(mLocations);
     }
 
@@ -262,5 +279,27 @@ public class HeatMapActivity extends FragmentActivity {
         mProgressDialog.setIndeterminate(true);
         mProgressDialog.setCancelable(false);
         mProgressDialog.show();
+    }
+
+    public void setUpMapFromFile() {
+        File sdcard = new File("/sdcard/");
+        File file = new File(sdcard, "nodes.txt");
+
+        try {
+            Scanner s = new Scanner(file);
+            while (s.hasNext()) {
+                String[] input = s.nextLine().split("\\s+");
+                Log.d("TESTING", input.toString());
+                double lat = Double.parseDouble(input[2]);
+                double lng = Double.parseDouble(input[3]);
+                int weight = Integer.parseInt(input[1]);
+
+                mLocations.add(new WeightedLatLng(new LatLng(lat, lng), weight));
+            }
+
+            createHeatMap(mLocations);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 }
