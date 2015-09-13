@@ -106,7 +106,7 @@ public class HeatMapActivity extends FragmentActivity {
 
     private void getLocations(){
         final NessieClient nessieClient = NessieClient.getInstance();
-        nessieClient.setAPIKey("3a942e124e29f5d830e92f88808e096b");
+        nessieClient.setAPIKey("d566c0e9c969eb4c02760ef8ecbcabf0");
 
 
         nessieClient.getMerchants("37", "-77", "1000", new NessieResultsListener() {
@@ -135,7 +135,7 @@ public class HeatMapActivity extends FragmentActivity {
     }
 
     private void getPurchases() {
-        nessieClient.getPurchases("55e94a6cf8d8770528e6169b", new NessieResultsListener() {
+        nessieClient.getPurchases("55e94a6cf8d8770528e6170c", new NessieResultsListener() {
             @Override
             public void onSuccess(Object result, NessieException e) {
                 if (e == null) {

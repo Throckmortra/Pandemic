@@ -1,7 +1,11 @@
 package ramhacks.pandemic;
 
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
-import android.support.v4.app.Fragment;
+import android.content.IntentSender;
+import android.location.Location;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,64 +14,55 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.FrameLayout;
 import android.widget.Spinner;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.FusedLocationProviderApi;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStates;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.maps.model.LatLng;
-//import com.reimaginebanking.api.java.Models.Merchant;
-import com.reimaginebanking.api.java.NessieClient;
-import com.reimaginebanking.api.java.NessieException;
-import com.reimaginebanking.api.java.NessieResultsListener;
 
-import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import ramhacks.pandemic.Interfaces.OnFragmentActionListener;
 
-public class MainActivity extends AppCompatActivity implements OnFragmentActionListener,
-        AdapterView.OnItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements
+        AdapterView.OnItemSelectedListener, com.google.android.gms.location.LocationListener,
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     @Bind(R.id.radius_spinner)
     public Spinner mSpinner;
-    private List<LatLng> mLocations;
+
+    private String[] radiusNums;
+    private String mSelectedRadius;
+    private ProgressDialog mProgressDialog;
+    private FusedLocationProviderApi fusedLocationProviderApi;
+    private Context mContext;
+
+    private GoogleApiClient mGoogleApiClient;
+    private LocationRequest mLocationRequest;
+    private static final long MIN_TIME = 10000;
+    protected static final int REQUEST_CHECK_SETTINGS = 0x1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        mContext = this;
         setSpinner();
 
         mSpinner.setOnItemSelectedListener(this);
-//        NessieClient nessieClient = NessieClient.getInstance();
-//        nessieClient.setAPIKey("3a942e124e29f5d830e92f88808e096b");
-//
-//        nessieClient.getMerchants(new NessieResultsListener() {
-//            @Override
-//            public void onSuccess(Object result, NessieException e) {
-//                if(e == null){
-//                    //There is no error, do whatever you need here.
-//                    // Cast the result object to the type that you are requesting and you are good to go
-//                    ArrayList<Merchant> customers = (ArrayList<Merchant>) result;
-//
-//                    for (int i = 0; i < customers.size(); i++) {
-//                        float lat = customers.get(i).getGeocode().getLat();
-//                        float lng = customers.get(i).getGeocode().getLng();
-//                        mLocations.add(new LatLng(lat, lng));
-//                    }
-//
-//                } else {
-//                    //There was an error. Handle it here
-//                    Log.e("Error", e.toString());
-//                }
-//            }
-//        });
-//
-//
-//        //replaceWithParameterFragment();
+
     }
 
     @Override
@@ -79,13 +74,96 @@ public class MainActivity extends AppCompatActivity implements OnFragmentActionL
 
     @OnClick(R.id.btn_heatmap)
     public void segueToHeatActivity(){
-        Log.d("ayy", "lmao");
         Intent intent = new Intent(this, HeatMapActivity.class);
         this.startActivity(intent);
     }
 
+    @OnClick(R.id.btn_getlocation)
+    public void locationCheck(){
+        googleCallback();
+    }
+
+
+    public void googleCallback(){
+        Log.d("Testing GoogleCallBack", "The Streets is watching");
+        mGoogleApiClient.connect();
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(mLocationRequest);
+
+        PendingResult<LocationSettingsResult> result =
+                LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient, builder.build());
+
+        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
+            @Override
+            public void onResult(LocationSettingsResult result) {
+                final Status status = result.getStatus();
+                final LocationSettingsStates locationSettingsStates = result.getLocationSettingsStates();
+                switch (status.getStatusCode()) {
+                    case LocationSettingsStatusCodes.SUCCESS:
+
+                        getLocation();
+                        break;
+                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                        // Location settings are not satisfied. But could be fixed by showing the user
+                        // a dialog.
+//                        try {
+//                            // Show the dialog by calling startResolutionForResult(),
+//                            // and check the result in onActivityResult().
+//                            //status.startResolutionForResult(this, REQUEST_CHECK_SETTINGS);
+//                        } catch (IntentSender.SendIntentException e) {
+//                            // Ignore the error.
+//                        }
+                        break;
+                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                        // Location settings are not satisfied. However, we have no way to fix the
+                        // settings so we won't show the dialog.
+                        break;
+                }
+            }
+        });
+    }
+
+    private void getLocation(){
+        mLocationRequest = LocationRequest.create();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(MIN_TIME);
+        mLocationRequest.setFastestInterval(MIN_TIME);
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient.connect();
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        final LocationSettingsStates states = LocationSettingsStates.fromIntent(data);
+        switch (requestCode) {
+            case REQUEST_CHECK_SETTINGS:
+                switch (resultCode) {
+                    case Activity.RESULT_OK:
+                        Log.d("Result", "Okay");
+                        getLocation();
+                        showProgressDialog();
+                        break;
+                    case Activity.RESULT_CANCELED:
+                        // The user was asked to change settings, but chose not to
+                        Log.d("RESULT", "NOT OKAY");
+                        break;
+                    default:
+                        Log.d("RESULT", "DEFAULT");
+                        break;
+                }
+                break;
+        }
+    }
+
+
     private void setSpinner(){
-        String[] radiusNums = new String[5];
+        radiusNums = new String[5];
         radiusNums[0] = "10 miles";
         radiusNums[1] = "25 miles";
         radiusNums[2] = "100 miles";
@@ -118,33 +196,10 @@ public class MainActivity extends AppCompatActivity implements OnFragmentActionL
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void dismissProgressDialog() {
-
-    }
-
-    @Override
-    public void replaceFragment(Fragment fragment) {
-//        getSupportFragmentManager().beginTransaction()
-//                .replace(R.id.fragment_container, fragment)
-//                .addToBackStack(null)
-//                .commit();
-    }
-
-    @Override
-    public void showProgressDialog() {
-
-    }
-
-    private void replaceWithParameterFragment(){
-        ParametersFragment fragment = ParametersFragment.newInstance();
-        replaceFragment(fragment);
-    }
-
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        Log.d("ayy", "lmao");
+        mSelectedRadius = radiusNums[i];
     }
 
     @Override
@@ -152,4 +207,53 @@ public class MainActivity extends AppCompatActivity implements OnFragmentActionL
 
     }
 
+    public void dismissProgressDialog() {
+        if (null != mProgressDialog && mProgressDialog.isShowing()) {
+            mProgressDialog.dismiss();
+        }
+    }
+
+    public void showProgressDialog() {
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setMessage("Loading data...");
+        mProgressDialog.setIndeterminate(true);
+        mProgressDialog.setCancelable(false);
+        mProgressDialog.show();
+    }
+
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        if(location.getLongitude() != 0.0 && location.getLatitude() != 0.0) {
+            LatLng latLng = new LatLng(location.getLongitude(), location.getLatitude());
+            Log.d("Test callback", "" + latLng.latitude + "  " + latLng.longitude);
+            try{
+                dismissProgressDialog();
+            } catch(NullPointerException e){}
+        }
+        Log.d("the location", location.getLongitude() + "  " + location.getLatitude());
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        fusedLocationProviderApi = LocationServices.FusedLocationApi;
+        mLocationRequest.setNumUpdates(1);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        try{
+            fusedLocationProviderApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        } catch(NullPointerException e){
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
 }
