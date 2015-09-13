@@ -5,32 +5,38 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="ramhacks.pandemic.MainActivity"
-    android:background="#26292B">
+    android:background="@drawable/pandemic">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/logo"
+        android:background="@drawable/pandemiclogo"
+        android:layout_margin="20dp" />
 
     <Button
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:text="Get Location"
+        android:text="Press to Get Location"
         android:id="@+id/btn_getlocation"
         android:layout_gravity="center_horizontal"
-        android:background="#8A7A60"
+        android:background="#00C4CC"
         android:textColor="@android:color/black"
-        android:layout_below="@+id/imageView"
-        android:layout_alignStart="@+id/radius_spinner"
-        android:layout_marginTop="40dp" />
+        android:layout_below="@+id/logo"
+        android:layout_alignStart="@+id/radius_spinner" />
 
     <Spinner
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:id="@+id/radius_spinner"
         android:layout_gravity="center_horizontal|center_vertical"
-        android:background="#8A7A60"
+        android:background="#00C4CC"
         android:layout_below="@+id/btn_getlocation"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="43dp" />
+        android:layout_marginTop="10dp" />
 
     <Button
-        android:layout_width="128dp"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:text="Go to Heat Map"
         android:id="@+id/btn_heatmap"
@@ -38,16 +44,7 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="50dp"
-        android:background="#8A7A60"
+        android:background="#00C4CC"
         android:textColor="@android:color/black" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/imageView"
-        android:background="@drawable/pandemic"
-        android:layout_alignParentTop="true"
-        android:layout_alignStart="@+id/btn_heatmap"
-        android:layout_marginTop="38dp" />
 
 </RelativeLayout>
