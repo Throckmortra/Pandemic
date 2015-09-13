@@ -5,40 +5,59 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="ramhacks.pandemic.MainActivity"
-    android:background="#26292B">
+    android:background="#352245">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/logo"
+        android:background="@drawable/pandemiclogo"
+        android:layout_margin="20dp" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/iconthing"
+        android:background="@drawable/pandemic"
+        android:layout_below="@+id/logo"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="10dp" />
 
     <Button
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:text="Get Location"
+        android:text="Press to Get Location"
         android:id="@+id/btn_getlocation"
         android:layout_gravity="center_horizontal"
-        android:background="#8A7A60"
+        android:background="#DC5D3A"
         android:textColor="@android:color/black"
-        android:layout_marginTop="72dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignStart="@+id/radius_spinner" />
+        android:layout_below="@+id/iconthing"
+        android:layout_alignStart="@+id/radius_spinner"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp" />
 
     <Spinner
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:id="@+id/radius_spinner"
         android:layout_gravity="center_horizontal|center_vertical"
-        android:background="#8A7A60"
+        android:background="#DC5D3A"
         android:layout_below="@+id/btn_getlocation"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="62dp" />
+        android:layout_alignStart="@+id/btn_heatmap"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp" />
 
     <Button
-        android:layout_width="128dp"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:text="Go to Heat Map"
         android:id="@+id/btn_heatmap"
         android:layout_gravity="center_horizontal"
-        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="50dp"
-        android:background="#8A7A60"
-        android:textColor="@android:color/black" />
+        android:background="#DC5D3A"
+        android:textColor="@android:color/black"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/radius_spinner"/>
 
 </RelativeLayout>

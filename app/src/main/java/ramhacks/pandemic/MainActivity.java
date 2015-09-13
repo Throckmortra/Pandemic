@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -42,11 +43,18 @@ public class MainActivity extends AppCompatActivity implements
     @Bind(R.id.radius_spinner)
     public Spinner mSpinner;
 
+    @Bind(R.id.btn_getlocation)
+    public Button mLocationBtn;
+
     private String[] radiusNums;
     private String mSelectedRadius;
     private ProgressDialog mProgressDialog;
     private FusedLocationProviderApi fusedLocationProviderApi;
     private Context mContext;
+    private boolean mFirstLocation;
+    private String mLat;
+    private String mLng;
+    private String[] radiusInt;
 
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
@@ -58,11 +66,12 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        mLocationRequest = LocationRequest.create();
+        buildGoogleApi();
+        mFirstLocation = false;
         mContext = this;
         setSpinner();
-
         mSpinner.setOnItemSelectedListener(this);
-
     }
 
     @Override
@@ -75,12 +84,26 @@ public class MainActivity extends AppCompatActivity implements
     @OnClick(R.id.btn_heatmap)
     public void segueToHeatActivity(){
         Intent intent = new Intent(this, HeatMapActivity.class);
+        Bundle args = new Bundle();
+        args.putString("radius",mSelectedRadius);
+        args.putString("latitude", mLat);
+        args.putString("longitude", mLng);
+        intent.putExtras(args);
         this.startActivity(intent);
     }
 
     @OnClick(R.id.btn_getlocation)
     public void locationCheck(){
         googleCallback();
+    }
+
+    public void buildGoogleApi(){
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+
     }
 
 
@@ -164,11 +187,18 @@ public class MainActivity extends AppCompatActivity implements
 
     private void setSpinner(){
         radiusNums = new String[5];
-        radiusNums[0] = "10 miles";
-        radiusNums[1] = "25 miles";
-        radiusNums[2] = "100 miles";
-        radiusNums[3] = "500 miles";
-        radiusNums[4] = "1000 miles";
+        radiusNums[0] = "50 miles";
+        radiusNums[1] = "100 miles";
+        radiusNums[2] = "500 miles";
+        radiusNums[3] = "1000 miles";
+        radiusNums[4] = "10000 miles";
+
+        radiusInt = new String[5];
+        radiusInt[0] = "50";
+        radiusInt[1] = "100";
+        radiusInt[2] = "500";
+        radiusInt[3] = "1000";
+        radiusInt[4] = "10000";
 
 
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this,
@@ -199,7 +229,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        mSelectedRadius = radiusNums[i];
+        mSelectedRadius = radiusInt[i];
     }
 
     @Override
@@ -230,8 +260,14 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onLocationChanged(Location location) {
         if(location.getLongitude() != 0.0 && location.getLatitude() != 0.0) {
-            LatLng latLng = new LatLng(location.getLongitude(), location.getLatitude());
+            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
             Log.d("Test callback", "" + latLng.latitude + "  " + latLng.longitude);
+            if(!mFirstLocation) {
+                mLocationBtn.setText("" + latLng.latitude + "  " + latLng.longitude);
+                mLat = String.valueOf(latLng.latitude);
+                mLng = String.valueOf(latLng.longitude);
+                mFirstLocation = true;
+            }
             try{
                 dismissProgressDialog();
             } catch(NullPointerException e){}
