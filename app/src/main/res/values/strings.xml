@@ -10,4 +10,5 @@
 
     <string name="release_api_key">AIzaSyCy0G7xVmQUk3RkchZXXIG2EWeZuc2vopU</string>
     <string name="debug_api__key">AIzaSyB1_izFI4XIT5TFsxC5P6EDrNeOLmZo4JM</string>
+    <string name="title_activity_splash">SplashActivity</string>
 </resources>
