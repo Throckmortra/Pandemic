@@ -1,0 +1,3 @@
+ellen's api key - purchase date info
+api key = 10a587f5784c9e280d1e6a42281f87fa
+account id = 55e94a6cf8d8770528e61758

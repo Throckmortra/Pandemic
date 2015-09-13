@@ -71,9 +71,7 @@ public class MainActivity extends AppCompatActivity implements
         mFirstLocation = false;
         mContext = this;
         setSpinner();
-
         mSpinner.setOnItemSelectedListener(this);
-
     }
 
     @Override
