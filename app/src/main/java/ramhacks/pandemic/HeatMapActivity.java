@@ -3,6 +3,7 @@ package ramhacks.pandemic;
 import android.app.ProgressDialog;
 import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
+import android.support.design.widget.FloatingActionButton;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -41,6 +42,7 @@ public class HeatMapActivity extends FragmentActivity {
     private List<MerchantWeight> mMerchantWeight;
     private NessieClient nessieClient;
     private ProgressDialog mProgressDialog;
+    private FloatingActionButton fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +56,17 @@ public class HeatMapActivity extends FragmentActivity {
         mMerchantWeight = new ArrayList<>();
         nessieClient = NessieClient.getInstance();
         getLocations();
+        fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent intent = new Intent(MainActivity.this, OrangeTabsActivity.class);
+//                intent.putExtra("buttonID", 2 + "");
+//                startActivity(intent);
+//            }
+//        });
+
+
     }
 
     @Override
