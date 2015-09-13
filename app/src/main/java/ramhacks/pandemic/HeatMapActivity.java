@@ -1,11 +1,14 @@
 package ramhacks.pandemic;
 
+import android.app.ProgressDialog;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlay;
@@ -38,12 +41,14 @@ public class HeatMapActivity extends FragmentActivity {
     private ArrayList<Merchant> mMerchants;
     private ArrayList<MerchantWeight> mMerchantWeight;
     private NessieClient nessieClient;
+    private ProgressDialog mProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_heat_map);
         setUpMapIfNeeded();
+        showProgressDialog();
         mLocations = new ArrayList<>();
         mPurchases = new ArrayList<>();
         mMerchants = new ArrayList<>();
@@ -95,6 +100,8 @@ public class HeatMapActivity extends FragmentActivity {
                 .build();
         // Add a tile overlay to the map, using the heat map tile provider.
         mOverlay = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
+
+        dismissProgressDialog();
     }
 
     private void getLocations(){
@@ -114,32 +121,9 @@ public class HeatMapActivity extends FragmentActivity {
 
                     ArrayList<Merchant> customers = (ArrayList<Merchant>) result;
                     mMerchants = customers;
-                    for (int i = 0; i < customers.size(); i++) {
-                        LatLng temp;
-                        Merchant merchant = customers.get(i);
-
-                        if (merchant == null) {
-                            continue;
-                        }
-
-                        Geocode geocode = merchant.getGeocode();
-
-                        if (geocode == null) {
-                            continue;
-                        }
-                        double lat = geocode.getLat();
-                        double lng = geocode.getLng();
-
-                        if (lat != 0.0 && lng != 0.0) {
-                            temp = new LatLng(lat, lng);
-                            //mLocations.add(temp);
-                        }
-
-                        Log.d("ayyy", customers.get(i).getName() + "   " + lat + "  " + lng + "      #" + i);
-                    }
 
                     getPurchases();
-                    //createHeatMap(mLocations);
+
 
                 } else {
                     //There was an error. Handle it here
@@ -150,7 +134,7 @@ public class HeatMapActivity extends FragmentActivity {
 
     }
 
-    private void getPurchases(){
+    private void getPurchases() {
         nessieClient.getPurchases("55e94a6cf8d8770528e6169b", new NessieResultsListener() {
             @Override
             public void onSuccess(Object result, NessieException e) {
@@ -218,6 +202,26 @@ public class HeatMapActivity extends FragmentActivity {
      * This should only be called once and when we are sure that {@link #mMap} is not null.
      */
     private void setUpMap() {
-        mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+        //mMap.addMarker(new MarkerOptions().position(new LatLng(39, -98)).title("Marker"));
+
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(new LatLng(39, -98)).zoom(4).build();
+        mMap.animateCamera(CameraUpdateFactory
+                .newCameraPosition(cameraPosition));
+
+    }
+
+    public void dismissProgressDialog() {
+        if (null != mProgressDialog && mProgressDialog.isShowing()) {
+            mProgressDialog.dismiss();
+        }
+    }
+
+    public void showProgressDialog() {
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setMessage("Loading data...");
+        mProgressDialog.setIndeterminate(true);
+        mProgressDialog.setCancelable(false);
+        mProgressDialog.show();
     }
 }
