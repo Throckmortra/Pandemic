@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -43,11 +44,17 @@ public class MainActivity extends AppCompatActivity implements
     @Bind(R.id.radius_spinner)
     public Spinner mSpinner;
 
+    @Bind(R.id.btn_getlocation)
+    public Button mLocationBtn;
+
     private String[] radiusNums;
     private String mSelectedRadius;
     private ProgressDialog mProgressDialog;
     private FusedLocationProviderApi fusedLocationProviderApi;
     private Context mContext;
+    private boolean mFirstLocation;
+    private double mLat;
+    private double mLng;
 
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
@@ -60,6 +67,9 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        mLocationRequest = LocationRequest.create();
+        buildGoogleApi();
+        mFirstLocation = false;
         mContext = this;
         setSpinner();
         mSpinner.setOnItemSelectedListener(this);
@@ -93,6 +103,15 @@ public class MainActivity extends AppCompatActivity implements
     @OnClick(R.id.btn_getlocation)
     public void locationCheck(){
         googleCallback();
+    }
+
+    public void buildGoogleApi(){
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+
     }
 
 
@@ -244,6 +263,12 @@ public class MainActivity extends AppCompatActivity implements
         if(location.getLongitude() != 0.0 && location.getLatitude() != 0.0) {
             LatLng latLng = new LatLng(location.getLongitude(), location.getLatitude());
             Log.d("Test callback", "" + latLng.latitude + "  " + latLng.longitude);
+            if(!mFirstLocation) {
+                mLocationBtn.setText("" + latLng.latitude + "  " + latLng.longitude);
+                mLat = latLng.latitude;
+                mLng = latLng.longitude;
+                mFirstLocation = true;
+            }
             try{
                 dismissProgressDialog();
             } catch(NullPointerException e){}
