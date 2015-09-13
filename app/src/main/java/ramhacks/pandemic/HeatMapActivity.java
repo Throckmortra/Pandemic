@@ -22,10 +22,7 @@ import com.reimaginebanking.api.java.models.Geocode;
 import com.reimaginebanking.api.java.models.Merchant;
 import com.reimaginebanking.api.java.models.Purchase;
 
-
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 
 import ramhacks.pandemic.Models.MerchantWeight;
@@ -36,10 +33,10 @@ public class HeatMapActivity extends FragmentActivity {
     private HeatmapTileProvider mProvider;
     private TileOverlay mOverlay;
     private TileOverlay mOverlayz;
-    private ArrayList<WeightedLatLng> mLocations;
-    private ArrayList<Purchase> mPurchases;
-    private ArrayList<Merchant> mMerchants;
-    private ArrayList<MerchantWeight> mMerchantWeight;
+    private List<WeightedLatLng> mLocations;
+    private List<Purchase> mPurchases;
+    private List<Merchant> mMerchants;
+    private List<MerchantWeight> mMerchantWeight;
     private NessieClient nessieClient;
     private ProgressDialog mProgressDialog;
 
@@ -55,8 +52,6 @@ public class HeatMapActivity extends FragmentActivity {
         mMerchantWeight = new ArrayList<>();
         nessieClient = NessieClient.getInstance();
         getLocations();
-
-
     }
 
     @Override
@@ -93,8 +88,7 @@ public class HeatMapActivity extends FragmentActivity {
         }
     }
 
-    private void createHeatMap(List<WeightedLatLng> locations){
-
+    private void createHeatMap(List<WeightedLatLng> locations) {
         mProvider = new HeatmapTileProvider.Builder()
                 .weightedData(locations)
                 .build();
@@ -104,12 +98,11 @@ public class HeatMapActivity extends FragmentActivity {
         dismissProgressDialog();
     }
 
-    private void getLocations(){
+    private void getLocations() {
         final NessieClient nessieClient = NessieClient.getInstance();
         nessieClient.setAPIKey("d566c0e9c969eb4c02760ef8ecbcabf0");
 
-
-        nessieClient.getMerchants("37", "-77", "1000", new NessieResultsListener() {
+        nessieClient.getMerchants("37", "-77", "10000", new NessieResultsListener() {
             @Override
             public void onSuccess(Object result, NessieException e) {
                 if (e == null) {
@@ -119,11 +112,9 @@ public class HeatMapActivity extends FragmentActivity {
                         return;
                     }
 
-                    ArrayList<Merchant> customers = (ArrayList<Merchant>) result;
-                    mMerchants = customers;
+                    mMerchants = (ArrayList<Merchant>) result;
 
                     getPurchases();
-
 
                 } else {
                     //There was an error. Handle it here
@@ -156,45 +147,42 @@ public class HeatMapActivity extends FragmentActivity {
         });
     }
 
-    private void computeWeight(){
-
-        for (int x = 0; x < mMerchants.size(); x++) {
-
-            Merchant merchant = mMerchants.get(x);
-            if (merchant == null) {
+    private void computeWeight() {
+        for (Merchant m : mMerchants) {
+            if (m == null) {
                 continue;
             }
 
-            String id = merchant.get_id();
-            String name = merchant.getName();
+            String id = m.get_id();
+            String name = m.getName();
 
-            Geocode geocode = merchant.getGeocode();
+            Geocode geocode = m.getGeocode();
 
             if (geocode == null) {
                 continue;
             }
 
-            int weight = 1;
-            mMerchantWeight.add(new MerchantWeight(id, name, geocode, weight));
+            mMerchantWeight.add(new MerchantWeight(id, name, geocode, 1));
         }
 
-        for(int i = 0; i < mMerchantWeight.size(); i++){
-            for (int n = 0; n < mPurchases.size(); n++) {
-                if(mMerchantWeight.get(i).getId().equals(mPurchases.get(n).getMerchant_id())){
-                    mMerchantWeight.get(i).incrementWeight();
+        for (MerchantWeight mw : mMerchantWeight) {
+            for (Purchase p : mPurchases) {
+                if (mw.getId().equals(p.getMerchant_id())) {
+                    mw.incrementWeight();
                 }
             }
         }
 
-        for (int z = 0; z < mMerchantWeight.size(); z++) {
-            double lat = mMerchantWeight.get(z).getGeocode().getLat();
-            double lng = mMerchantWeight.get(z).getGeocode().getLng();
-            double weight = mMerchantWeight.get(z).getWeight();
-            mLocations.add(new WeightedLatLng(new LatLng(lat,lng), weight));
+        for (MerchantWeight mw : mMerchantWeight) {
+            double lat =  mw.getGeocode().getLat();
+            double lng = mw.getGeocode().getLng();
+            double weight = mw.getWeight();
+            mLocations.add(new WeightedLatLng(new LatLng(lat, lng), weight));
         }
 
         createHeatMap(mLocations);
     }
+
     /**
      * This is where we can add markers or lines, add listeners or move the camera. In this case, we
      * just add a marker near Africa.
