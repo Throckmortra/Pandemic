@@ -97,7 +97,7 @@ public class HeatMapActivity extends FragmentActivity {
         };
 
         float[] startPoints = {
-                0.1f, 0.15f
+                0.05f, 0.12f
         };
 
         Gradient gradient = new Gradient(colors, startPoints);
