@@ -1,6 +1,7 @@
 package ramhacks.pandemic;
 
 import android.app.ProgressDialog;
+import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,6 +14,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.maps.android.heatmaps.Gradient;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 import com.google.maps.android.heatmaps.WeightedLatLng;
 import com.reimaginebanking.api.java.NessieClient;
@@ -89,8 +91,20 @@ public class HeatMapActivity extends FragmentActivity {
     }
 
     private void createHeatMap(List<WeightedLatLng> locations) {
+        int[] colors = {
+                Color.rgb(102, 225, 0),
+                Color.rgb(255, 0, 0)
+        };
+
+        float[] startPoints = {
+                0.1f, 0.15f
+        };
+
+        Gradient gradient = new Gradient(colors, startPoints);
+
         mProvider = new HeatmapTileProvider.Builder()
                 .weightedData(locations)
+                .gradient(gradient)
                 .build();
         // Add a tile overlay to the map, using the heat map tile provider.
         mOverlay = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));

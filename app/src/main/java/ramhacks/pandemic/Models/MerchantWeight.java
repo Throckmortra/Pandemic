@@ -40,7 +40,13 @@ public class MerchantWeight {
     }
 
     public void incrementWeight(){
-        weight = weight++;
+        if(weight == 1){
+            weight++;
+        }
+        else{
+            weight = weight + 1;
+        }
+
     }
 
 }
