@@ -140,7 +140,14 @@ public class HeatMapActivity extends FragmentActivity {
     }
 
     private void computeWeight() {
+        int counter = 0;
+
         for (Merchant m : mMerchants) {
+            counter++;
+            if (counter < 1500) {
+                continue;
+            }
+            
             if (m == null) {
                 continue;
             }
