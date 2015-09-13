@@ -14,7 +14,7 @@ import android.widget.FrameLayout;
 import android.widget.Spinner;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.reimaginebanking.api.java.Models.Merchant;
+//import com.reimaginebanking.api.java.Models.Merchant;
 import com.reimaginebanking.api.java.NessieClient;
 import com.reimaginebanking.api.java.NessieException;
 import com.reimaginebanking.api.java.NessieResultsListener;
@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements OnFragmentActionL
         ButterKnife.bind(this);
         setSpinner();
 
+        mSpinner.setOnItemSelectedListener(this);
 //        NessieClient nessieClient = NessieClient.getInstance();
 //        nessieClient.setAPIKey("3a942e124e29f5d830e92f88808e096b");
 //
@@ -98,8 +99,8 @@ public class MainActivity extends AppCompatActivity implements OnFragmentActionL
                 android.R.layout.simple_spinner_dropdown_item);
 
         mSpinner.setAdapter(spinnerAdapter);
-        mSpinner.setSelection(5, false);
-        //mSpinner.setOnItemClickListener(this);
+        mSpinner.setSelection(4, false);
+
     }
 
     @Override
@@ -150,4 +151,5 @@ public class MainActivity extends AppCompatActivity implements OnFragmentActionL
     public void onNothingSelected(AdapterView<?> adapterView) {
 
     }
+
 }

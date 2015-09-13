@@ -11,11 +11,11 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
-import com.reimaginebanking.api.java.Models.Geocode;
-import com.reimaginebanking.api.java.Models.Merchant;
 import com.reimaginebanking.api.java.NessieClient;
 import com.reimaginebanking.api.java.NessieException;
 import com.reimaginebanking.api.java.NessieResultsListener;
+import com.reimaginebanking.api.java.models.Geocode;
+import com.reimaginebanking.api.java.models.Merchant;
 
 
 import java.util.ArrayList;
@@ -87,16 +87,11 @@ public class HeatMapActivity extends FragmentActivity {
     }
 
     private void getLocations(){
-        NessieClient nessieClient = NessieClient.getInstance();
+        final NessieClient nessieClient = NessieClient.getInstance();
         nessieClient.setAPIKey("3a942e124e29f5d830e92f88808e096b");
 
-        HashMap body = new HashMap<>(3);
-        body.put("lat", 33);
-        body.put("lng", -77);
-        body.put("rad", 100);
 
-
-        nessieClient.getMerchants(new NessieResultsListener() {
+        nessieClient.getMerchants("37","-77","1000" ,new NessieResultsListener() {
             @Override
             public void onSuccess(Object result, NessieException e) {
                 if (e == null) {
@@ -135,7 +130,9 @@ public class HeatMapActivity extends FragmentActivity {
 
                         Log.d("ayyy", customers.get(i).getName() + "   " + lat + "  " + lng + "      #"+ i);
                     }
-                    createHeatMap(mLocations);
+
+                    //getPurchases();
+                    //createHeatMap(mLocations);
 
                 } else {
                     //There was an error. Handle it here
